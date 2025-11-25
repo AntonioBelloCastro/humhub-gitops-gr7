@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: humhub-ingress
+  namespace: humhub
+  annotations: 
+    traefik.ingress.kubernetes.io/router.entrypoints: web #traefik de serie, que vaya al puerto 80 (se puede poner https con "websecure y otra linea mas")
+spec:
+  rules:
+  - host: humhub.grupo7.com #dominio de la web
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: humhub-service #hay que llamar a este servicio de la misma forma en los demas archivos
+            port:
+              number: 80
