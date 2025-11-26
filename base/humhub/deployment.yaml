@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: humhub
+  labels:
+    app: humhub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: humhub
+  template:
+    metadata:
+      labels:
+        app: humhub
+    spec:
+      containers:
+      - name: humhub
+        image: humhub/humhub:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        
+    
+        env:
+        # ---------------------------------------------------------
+        # ZONA DE CONEXIÓN CON ROL 1 (MYSQL)
+        # ---------------------------------------------------------
+        
+        # HOST DE LA BASE DE DATOS
+        # En base/mysql/service.yaml, nos fijamos en metadata: name
+        - name: HUMHUB_DB_HOST
+          value: "mysql-service"
+
+        # NOMBRE DE LA BASE DE DATOS
+        - name: HUMHUB_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: humhub-mysql-secret
+              key: MYSQL_DATABASE
+
+        # USUARIO DE LA BASE DE DATOS
+        - name: HUMHUB_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: humhub-mysql-secret
+              key: MYSQL_USER
+
+        # CONTRASEÑA DE LA BASE DE DATOS
+        - name: HUMHUB_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: humhub-mysql-secret
+              key: MYSQL_PASSWORD
+
+        # ---------------------------------------------------------
+        - name: HUMHUB_TRUSTED_HOSTS
+          value: "*"
+        - name: HUMHUB_DEBUG
+          value: "false"
+        - name: HUMHUB_AUTO_INSTALL
+          value: "false"
