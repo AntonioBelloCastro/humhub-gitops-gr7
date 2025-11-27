@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pv-claim # Nombre que usado en el Deployment
+  name: mysql-pv-claim # Nombre que es usado en el Deployment
   labels:
     app: mysql
 spec:

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql #Asignamos el nombre mysql al objeto Deployment
+  labels:
+    app: mysql #Etiqueta para que Kubernetes pueda encontrar y gestionar a los pods de mysql
+spec:
+  replicas: 1 #Sólo una réplica para mantener la integridad de los datos
+  selector: #A continuación se definen qué Pods pertenecerán a este Deployment
+    matchLabels: #A continuacion se define qué etiquetas deben tener los Pods para ser seleccionados
+      app: mysql 
+  template: #Descripción de cómo debe ser el pod que se crea
+    metadata: # Sección de información de identificación para el Pod
+      labels: 
+        app: mysql #etiqueta que usa el service para conectarse al pod
+    spec: #Sección de detalles técnicos de cómo debe ejecutarse el Pod
+      containers: #Contenedores que se ejecutarán dentro del Pod
+      - name: mysql
+        image: mysql:5.7 #Imagen Docker que se debe descargar y ejecutar 
+        ports:
+        - containerPort: 3306 # Puerto estándar de MySql
+        
+        # 1. INYECCIÓN DE CREDENCIALES DESDE EL SECRET
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: humhub-mysql-secret
+                key: MYSQL_ROOT_PASSWORD 
+          - name: MYSQL_DATABASE
+            valueFrom:
+              secretKeyRef:
+                name: humhub-mysql-secret 
+                key: MYSQL_DATABASE
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: humhub-mysql-secret 
+                key: MYSQL_USER
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: humhub-mysql-secret 
+                key: MYSQL_PASSWORD
+
+        # 2. MONTAJE DEL PVC EN LA RUTA DE DATOS
+        volumeMounts:
+        - name: mysql-persistent-storage # Referencia al nombre interno para el volumen que definiremos en la sección volumes
+          mountPath: /var/lib/mysql # Ruta de datos de MySQL
+
+      # 3. DEFINICIÓN DEL PVC PARA EL POD
+      volumes:
+      - name: mysql-persistent-storage #nombre lógico para la fuente de datos
+        persistentVolumeClaim: # el tipo de fuente es un PersistentVolumeClaim
+          claimName: mysql-pv-claim #referencia al manifiesto PVC
