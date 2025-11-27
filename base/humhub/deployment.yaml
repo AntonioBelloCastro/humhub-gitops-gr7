@@ -15,6 +15,9 @@ spec:
       labels:
         app: humhub
     spec:
+      #para que coja la credencial
+      imagePullSecrets:
+      - name: regcred
       containers:
       - name: humhub
         image: humhub/humhub:latest
@@ -78,10 +81,3 @@ spec:
           value: "false"
         - name: HUMHUB_AUTO_INSTALL
           value: "false"
-        volumeMounts:
-        - name: humhub-persistent-storage
-          mountPath: /var/www/html
-      volumes:
-      - name: humhub-persistent-storage
-        persistentVolumeClaim:
-          claimName: humhub-pv-claim
