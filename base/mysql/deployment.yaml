@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql #Asignamos el nombre mysql al objeto Deployment
+  namespace: humhub
   labels:
     app: mysql #Etiqueta para que Kubernetes pueda encontrar y gestionar a los pods de mysql
 spec:
@@ -19,7 +20,29 @@ spec:
         image: mysql:5.7 #Imagen Docker que se debe descargar y ejecutar 
         ports:
         - containerPort: 3306 # Puerto estándar de MySql
-        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "mysql -u root -p${MYSQL_ROOT_PASSWORD} -e 'SELECT 1'"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "mysql -u root -p${MYSQL_ROOT_PASSWORD} -e 'SELECT 1'"
+          initialDelaySeconds: 5
+          periodSeconds: 5
         # 1. INYECCIÓN DE CREDENCIALES DESDE EL SECRET
         env:
           - name: MYSQL_ROOT_PASSWORD

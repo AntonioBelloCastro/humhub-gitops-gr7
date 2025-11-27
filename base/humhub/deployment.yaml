@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: humhub
+  namespace: humhub
   labels:
     app: humhub
 spec:
@@ -20,8 +21,25 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
-        
-    
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
         env:
         # ---------------------------------------------------------
         # ZONA DE CONEXIÓN CON ROL 1 (MYSQL)
@@ -60,3 +78,10 @@ spec:
           value: "false"
         - name: HUMHUB_AUTO_INSTALL
           value: "false"
+        volumeMounts:
+        - name: humhub-persistent-storage
+          mountPath: /var/www/html
+      volumes:
+      - name: humhub-persistent-storage
+        persistentVolumeClaim:
+          claimName: humhub-pv-claim
