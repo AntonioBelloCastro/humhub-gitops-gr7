@@ -20,7 +20,7 @@ spec:
       - name: regcred
       containers:
       - name: humhub
-        image: humhub/humhub:latest
+        image: mriedmann/humhub:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
