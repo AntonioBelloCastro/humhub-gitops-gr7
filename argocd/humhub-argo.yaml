@@ -9,8 +9,10 @@ spec:
   #En source le pasamos el lugar donde se encuentran los archivos 
   source:
     repoURL: https://github.com/AntonioBelloCastro/humhub-gitops-gr7.git
-    targetRevision: main  # que coja los cambios del main
+    targetRevision: modificaciones  # que coja los cambios del main
     path: base            # va a leer la carpeta base (que es donde tenemos toda la estructura)
+    directory:
+      recurse: true #para que mire los subdirectorios
   
   #Aquí es donde tengo que desplegar todo
   destination:

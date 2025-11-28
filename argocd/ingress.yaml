@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-ingress
+  namespace: argocd  # en el namespace de argo
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    # Esta línea extra es necesaria porque ArgoCD usa HTTPS internamente y a veces Traefik se lía
+    ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - host: argocd.grupo7.com   # eso pondremos en la url 
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: argocd-server  # El servicio oficial de ArgoCD
+            port:
+              number: 80
