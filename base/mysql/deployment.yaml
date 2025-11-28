@@ -7,6 +7,8 @@ metadata:
     app: mysql #Etiqueta para que Kubernetes pueda encontrar y gestionar a los pods de mysql
 spec:
   replicas: 1 #Sólo una réplica para mantener la integridad de los datos
+  strategy:
+    type: Recreate
   selector: #A continuación se definen qué Pods pertenecerán a este Deployment
     matchLabels: #A continuacion se define qué etiquetas deben tener los Pods para ser seleccionados
       app: mysql 
