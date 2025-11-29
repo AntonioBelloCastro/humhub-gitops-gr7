@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       # IMPORTANTE: Estas etiquetas deben coincidir con las que el Equipo 2 ponga en el servicio de HumHub
-      app.kubernetes.io/name: humhub
+      app: humhub
   endpoints:
   - port: http
     path: /metrics
