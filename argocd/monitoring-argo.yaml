@@ -6,15 +6,18 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/AntonioBelloCastro/humhub-gitops-gr7.git  # <-- CONFIRMA ESTA URL
+    repoURL: 'https://github.com/AntonioBelloCastro/humhub-gitops-gr7.git' # ¡CAMBIA ESTO POR TU URL REAL!
     targetRevision: HEAD
-    path: monitoring
+    path: monitoring # Apunta a tu carpeta preparada en el Paso 1
+    helm:
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: default
+    namespace: monitoring # Se desplegará en un namespace separado para orden
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true
+      - CreateNamespace=true # Creará el namespace 'monitoring' si no existe
