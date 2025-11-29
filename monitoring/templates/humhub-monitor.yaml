@@ -16,5 +16,5 @@ spec:
     interval: 15s
   namespaceSelector:
     matchNames:
-    - default 
+    - humhub 
     # (O el namespace donde instalen HumHub, normalmente 'default' en proyectos básicos)
