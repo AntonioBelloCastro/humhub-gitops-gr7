@@ -1,17 +1,27 @@
+# Archivo: monitoring-values.yaml
+# Configuración para kube-prometheus-stack (Equipo 3)
+
 grafana:
-  adminPassword: "admin"
-  service:
-    type: ClusterIP
+  # Habilitamos persistencia si el Equipo 1 configura almacenamiento, 
+  # si no, usará memoria temporal (seguro para demos).
   persistence:
     enabled: false
+  
+  # Contraseña de administrador FIJA (para no tener que buscarla en secretos)
+  adminPassword: "admin"
+  
+  # Configuración para que Grafana se vea bonito desde el principio
   sidecar:
     dashboards:
       enabled: true
       label: grafana_dashboard
-
+      
 prometheus:
   prometheusSpec:
+    # IMPORTANTE: Esto permite que Prometheus encuentre métricas en otros namespaces (como HumHub)
     serviceMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelector: {}
     serviceMonitorNamespaceSelector: {}
+    
+    # Reducimos retención para no llenar el disco de las VMs de la universidad
     retention: 2d
