@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/AntonioBelloCastro/humhub-gitops-gr7.git  # <-- CONFIRMA ESTA URL
     targetRevision: HEAD
-    path: monitoring
+    path: humhub-gitops-gr7/monitoring
   destination:
     server: https://kubernetes.default.svc
     namespace: default
