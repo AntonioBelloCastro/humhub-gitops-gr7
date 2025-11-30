@@ -1,0 +1,9 @@
+---
+# vars file for roles/common_firewall
+
+firewall_allowed_tcp_ports_master:
+  - '6443'  # API Kubernetes
+  - '80'    # HTTP
+  - '443'   # HTTPS
+  
+firewall_ssh_port: '22'

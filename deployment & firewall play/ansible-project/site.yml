@@ -1,0 +1,10 @@
+---
+- name: Despliegue de Infraestructura cluster K3s y Firewall
+  hosts: k3s_cluster
+  become: yes
+  roles:
+    - role: common_firewall
+      tags: firewall  # para poder ejecutar cada rol por separado
+
+    - role: k3s_cluster
+      tags: k3s

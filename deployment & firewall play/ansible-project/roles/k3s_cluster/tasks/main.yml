@@ -1,0 +1,55 @@
+---
+# tasks file for roles/k3s_cluster
+
+# 1. PREPARACIÓN
+- name: Actualizar caché apt
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Instalar dependencias (curl, python)
+  apt:
+    name: ["curl", "python3"]
+    state: present
+
+- name: Desactivar Swap
+  shell: |
+    swapoff -a
+    sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+# 2. INSTALACIÓN MASTER
+- name: Instalar K3s Server (Master)
+  shell: curl -sfL {{ k3s_installer_url }} | sh -
+  args:
+    creates: /usr/local/bin/k3s
+  when: inventory_hostname in groups['k3s_master']
+
+- name: Esperar arranque del Master
+  pause:
+    seconds: 10
+  when: inventory_hostname in groups['k3s_master']
+
+# 3. GESTIÓN DEL TOKEN
+- name: Leer Token del Master
+  slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  register: node_token_b64
+  # Ejecuta esto siempre en el master, aunque el play sea de un worker
+  delegate_to: "{{ groups['k3s_master'][0] }}"
+  run_once: true
+  become: yes  # Forzamos ser root para leer este archivo protegido
+
+- name: Decodificar Token
+  set_fact:
+    k3s_token_decoded: "{{ node_token_b64['content'] | b64decode | trim }}"
+
+# 4. INSTALACIÓN WORKERS
+- name: Instalar K3s Agent (Workers)
+  shell: >
+    curl -sfL {{ k3s_installer_url }} | 
+    K3S_URL=https://{{ k3s_master_ip }}:6443 
+    K3S_TOKEN={{ k3s_token_decoded }} 
+    sh -
+  args:
+    creates: /usr/local/bin/k3s-agent
+  when: inventory_hostname in groups['k3s_workers']

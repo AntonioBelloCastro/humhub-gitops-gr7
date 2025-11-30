@@ -1,0 +1,45 @@
+---
+# tasks file for roles/common_firewall
+
+- name: Instalar UFW
+  apt:
+    name: ufw
+    state: present
+
+- name: Resetear reglas (limpieza)
+  ufw:
+    state: reset
+
+- name: Denegar entrante por defecto
+  ufw:
+    default: deny
+    direction: incoming
+
+- name: Permitir saliente por defecto
+  ufw:
+    default: allow
+    direction: outgoing
+
+- name: Permitir SSH (General)
+  ufw:
+    rule: allow
+    port: "{{ firewall_ssh_port }}"
+    proto: tcp
+
+- name: Permitir tráfico interno del clúster
+  ufw:
+    rule: allow
+    from: "{{ cluster_subnet }}"
+
+# Reglas EXCLUSIVAS del Master
+- name: Permitir puertos públicos en Master (API/Web)
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ firewall_allowed_tcp_ports_master }}"
+  when: inventory_hostname in groups['k3s_master']
+
+- name: Activar Firewall
+  ufw:
+    state: enabled

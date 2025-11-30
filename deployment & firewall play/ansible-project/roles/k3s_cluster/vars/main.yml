@@ -1,0 +1,4 @@
+---
+# vars file for roles/k3s_cluster
+
+k3s_installer_url: "https://get.k3s.io"
