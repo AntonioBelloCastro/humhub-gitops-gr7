@@ -1,0 +1,26 @@
+---
+- name: Sacar Nodo del Cluster (Soft Remove)
+  hosts: k3s_new_worker
+  become: yes
+  tasks:
+    - name: Cordon Node (marcar como no programable)
+      command: >
+        /usr/local/bin/kubectl cordon {{ inventory_hostname }}
+      delegate_to: "{{ groups['k3s_master'][0] }}"
+      ignore_errors: yes 
+
+    - name: Drain Node (vaciar los pods)
+      command: >
+        /usr/local/bin/kubectl drain {{ inventory_hostname }}
+        --ignore-daemonsets 
+        --delete-emptydir-data
+        --force
+        --timeout=60s
+      delegate_to: "{{ groups['k3s_master'][0] }}"
+      ignore_errors: yes
+
+    - name: Delete Node (eliminar del cluster)
+      command: >
+        /usr/local/bin/kubectl delete node {{ inventory_hostname }}
+      delegate_to: "{{ groups['k3s_master'][0] }}"
+      ignore_errors: yes
