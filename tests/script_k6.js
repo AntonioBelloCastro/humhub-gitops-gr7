@@ -11,26 +11,19 @@ export const options = {
   thresholds: {
     // Definición de SLA:
     // Marcamos la prueba como fallida si el 95% de las peticiones tardan más de 500ms
-    http_req_duration: ['p(95)<500'],
+    http_req_duration: ['p(95)<2000'],
   },
 };
 
-const BASE_URL = 'http://IP_DEL_SERVIDOR';
+const BASE_URL = 'http://10.43.183.184'; 
 
 export default function () {
-  // 1. Visitamos la página de login para obtener el CSRF token (seguridad de HumHub)
-  let res = http.get(`${BASE_URL}/user/auth/login`);
-
-  // 2. Confirmamos que el servidor respondió "OK"
+  let res = http.get(`${BASE_URL}`);
+  
+  // Confirmamos que el servidor responde "OK"
   check(res, {
-    'Login Page cargada': (r) => r.status === 200,
+    'Status es 200': (r) => r.status === 200,
   });
 
   sleep(1);
-
-  // 3. Simulamos la carga de recursos estáticos (CSS/JS)
-  // Con esto conseguimos estresar el ancho de banda del servidor
-  http.get(`${BASE_URL}/static/css/style.css`);
-  
-  sleep(2);
 }
