@@ -1,10 +1,10 @@
 apiVersion: v2
 name: monitoring-stack
 description: Stack de monitorización para CIMSI (Prometheus + Grafana)
-type: application
+type: application  # Indicamos que este chart es una aplicación desplegable completa
 version: 0.1.0
 appVersion: "1.0.0"
 dependencies:
   - name: kube-prometheus-stack
-    version: 45.7.1 # O una versión reciente estable
+    version: 45.7.1  # Hemos fijado una versión específica para asegurar estabilidad
     repository: https://prometheus-community.github.io/helm-charts
