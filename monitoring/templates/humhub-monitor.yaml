@@ -2,19 +2,16 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: humhub-monitor
-  # Esta etiqueta debe coincidir con la release de prometheus (normalmente 'kube-prometheus-stack')
   labels:
-    release: kube-prometheus-stack
+    release: kube-prometheus-stack  # Esta etiqueta permite que la instancia principal de Prometheus reconozca la configuración y la integre automáticamente
 spec:
   selector:
     matchLabels:
-      # IMPORTANTE: Estas etiquetas deben coincidir con las que el Equipo 2 ponga en el servicio de HumHub
-      app: humhub
+      app: humhub  # Esta etiqueta coincide con el servicio desplegado de HumHub
   endpoints:
-  - port: http
-    path: /metrics
-    interval: 15s
+  - port: http  # Nombre del puerto definido en el servicio de HumHub
+    path: /metrics  # URL interna donde la app mostrará los datos
+    interval: 15s  # Frecuencia de lectura
   namespaceSelector:
     matchNames:
-    - humhub 
-    # (O el namespace donde instalen HumHub, normalmente 'default' en proyectos básicos)
+    - humhub  # Limitamos la búsqueda del servicio al namespace humhub
