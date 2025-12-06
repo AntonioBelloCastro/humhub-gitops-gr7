@@ -2,22 +2,22 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: monitoring-stack
-  namespace: argocd
+  namespace: argocd  # El recurso Application vive en el namespace de ArgoCD
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/AntonioBelloCastro/humhub-gitops-gr7.git' # ¡CAMBIA ESTO POR TU URL REAL!
-    targetRevision: HEAD
-    path: monitoring # Apunta a tu carpeta preparada en el Paso 1
+    repoURL: 'https://github.com/AntonioBelloCastro/humhub-gitops-gr7.git'
+    targetRevision: HEAD  # ArgoCD mirará el último commit de la rama por defecto del repositorio Git
+    path: monitoring
     helm:
       valueFiles:
         - values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring # Se desplegará en un namespace separado para orden
+    namespace: monitoring  # Se desplegará en un namespace separado para un mayor orden
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true  # Configuramos la limpieza automática del repositorio Git: los recursos se eliminarán del clúster si se borran en Git
+      selfHeal: true  # Cualquier cambio manual en el clúster será revertido y se volverá a aplicar la configuración de Git
     syncOptions:
-      - CreateNamespace=true # Creará el namespace 'monitoring' si no existe
+      - CreateNamespace=true  # Se creará el namespace 'monitoring' si no existe
