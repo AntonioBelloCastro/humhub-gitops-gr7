@@ -9,20 +9,30 @@ metadata:
     argocd.argoproj.io/compare-options: IgnoreDetailedDiff=true #ArgoCD que ignore las diferencias menores
     argocd.argoproj.io/sync-options: PreserveResourcesOnDelete=true #Evitar la pérdida accidental de la base de datos si el manifiesto se elimina de YAML se elimina de Git
 spec:
-  replicas: 1
+  replicas: 3
   strategy:
-    type: Recreate
+    type: Recreate 
   selector:
     matchLabels:
-      app: humhub
+      app: humhub 
   template:
     metadata:
       labels:
-        app: humhub
+        app: humhub #etiqueta del pod
     spec:
       #para que coja la credencial (el token)
-      imagePullSecrets:
-      - name: regcred
+      imagePullSecrets: 
+      - name: regcred 
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - humhub
+            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: humhub
         image: mriedmann/humhub:latest
@@ -36,13 +46,13 @@ spec:
           limits:
             memory: "1Gi"
             cpu: "500m"
-        livenessProbe:
+        livenessProbe: # Comprueba si el contenedor está vivo
           httpGet:
             path: /
             port: 80
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
+          initialDelaySeconds: 30 # espera 30 segundos antes de la primera comprobación
+          periodSeconds: 10 # comprueba cada 10 segundos
+        readinessProbe: # Comprueba si el contenedor está listo para recibir tráfico
           httpGet:
             path: /
             port: 80
