@@ -1,17 +1,14 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pv-claim # Nombre que es usado en el Deployment
+  name: mysql-pv-claim # Nombre usado en el deployment de MySQL
+  namespace: humhub
   labels:
     app: mysql
 spec:
-  # ReadWriteOnce: El volumen solo puede ser montado como lectura/escritura por un único nodo.
   accessModes:
-    - ReadWriteOnce 
-  
-  # Solicitud de Recursos
+    - ReadWriteOnce #El volumen solo puede ser montado como lectura/escritura por un único nodo
   resources:
-    requests:
+    requests:  # Solicitud de recursos
       storage: 5Gi # Define el tamaño de disco para MySQL
-      
-  storageClassName: local-path # Sea utiliza el almacenamiento local de los nodos de Kubernetes  para crear los volúmenes
+  storageClassName: local-path # Se utiliza el almacenamiento local de los nodos de Kubernetes  para crear los volúmenes

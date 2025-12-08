@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql-service # Nombre interno que la aplicación HumHub usará como DB_HOST
+  name: mysql-service #Nombre interno que la aplicación HumHub usará como DB_HOST
+  namespace: humhub
   labels:
     app: mysql  #Etiqueta para que Kubernetes pueda encontrar y gestionar a los pods de mysql
 spec:
-  selector: # El Service busca Pods con la etiqueta app: mysql para enviarles tráfico
+  selector: #El Service busca Pods con la etiqueta app: mysql para enviarles tráfico
     app: mysql 
   ports:
     - protocol: TCP
-      port: 3306      # Puerto del Service (lo que ve el resto del clúster)
-      targetPort: 3306 # Puerto que está escuchando el contenedor MySQL
-  # Type: ClusterIP es el valor por defecto y es ideal para bases de datos, 
-  # ya que solo es accesible INTERNAMENTE dentro del clúster.
-  type: ClusterIP
+      port: 3306      #Puerto del Service (lo que ve el resto del clúster)
+      targetPort: 3306 #Puerto que está escuchando el contenedor MySQL
+  
+  type: ClusterIP #Valor por defecto, solo es accesible internamente dentro del clúster.

@@ -2,10 +2,16 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: humhub
+  namespace: humhub
   labels:
     app: humhub
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreDetailedDiff=true #ArgoCD que ignore las diferencias menores
+    argocd.argoproj.io/sync-options: PreserveResourcesOnDelete=true #Evitar la pérdida accidental de la base de datos si el manifiesto se elimina de YAML se elimina de Git
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: humhub
@@ -14,14 +20,34 @@ spec:
       labels:
         app: humhub
     spec:
+      #para que coja la credencial (el token)
+      imagePullSecrets:
+      - name: regcred
       containers:
       - name: humhub
-        image: humhub/humhub:latest
+        image: mriedmann/humhub:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
-        
-    
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
         env:
         # ---------------------------------------------------------
         # ZONA DE CONEXIÓN CON ROL 1 (MYSQL)
@@ -60,3 +86,24 @@ spec:
           value: "false"
         - name: HUMHUB_AUTO_INSTALL
           value: "false"
+
+        # ---------------------------------------------------------
+        # El volumen para las fotos, archivos adjuntos...
+        # ---------------------------------------------------------
+        volumeMounts:
+        - name: humhub-data 
+          mountPath: /var/www/html/uploads #aqui es donde se van a guardar las fotos y demás
+        - name: humhub-modules
+          mountPath: /var/www/html/protected/modules
+        - name: humhub-config
+          mountPath: /var/www/html/protected/config
+
+      # Definición de los discos 
+      volumes:
+      - name: humhub-data
+        persistentVolumeClaim:
+          claimName: humhub-pv-claim #las fotos y archivos adjuntos se van a guardar en este disco
+      - name: humhub-modules
+        emptyDir: {} #esto se borra al reiniciar
+      - name: humhub-config
+        emptyDir: {} #esto se borra al reiniciar tb
