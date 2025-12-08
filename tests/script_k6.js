@@ -10,7 +10,7 @@ export const options = {
   ],
   thresholds: {
     // Definición de SLA:
-    // Marcamos la prueba como fallida si el 95% de las peticiones tardan más de 500ms
+    // Marcamos la prueba como fallida si el 95% de las peticiones tardan más de 2000ms
     http_req_duration: ['p(95)<2000'],
   },
 };
