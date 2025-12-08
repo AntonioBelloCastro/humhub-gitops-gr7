@@ -1,119 +1,118 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: humhub
-  namespace: humhub
+apiVersion: apps/v1 # versión de la API de Kubernetes
+kind: Deployment # tipo de recurso
+metadata: # contiene información para identificar el deployment
+  name: humhub #nombre del Deployment
+  namespace: humhub #namespace donde se va a desplegar
   labels:
-    app: humhub
+    app: humhub #etiqueta del Deployment
   annotations:
-    argocd.argoproj.io/compare-options: IgnoreDetailedDiff=true #ArgoCD que ignore las diferencias menores
-    argocd.argoproj.io/sync-options: PreserveResourcesOnDelete=true #Evitar la pérdida accidental de la base de datos si el manifiesto se elimina de YAML se elimina de Git
-spec:
-  replicas: 3
+    argocd.argoproj.io/compare-options: IgnoreDetailedDiff=true # ignora diferencias detalladas al comparar estados
+    argocd.argoproj.io/sync-options: PreserveResourcesOnDelete=true #evita la pérdida accidental de la base de datos si el manifiesto se elimina de YAML se elimina de Git
+spec: # describe el estado deseado del deployment
+  replicas: 3 # número de instancias de pod
   strategy:
-    type: Recreate 
-  selector:
-    matchLabels:
+    type: Recreate # estrategia de actualización (Recreate: elimina los pods antiguos antes de crear los nuevos)
+  selector: # selector para identificar los pods gestionados por este deployment
+    matchLabels: # indica al deployment qué pods gestionar
       app: humhub 
-  template:
+  template: # especificación de plantilla de pod
     metadata:
-      labels:
+      labels: # asigna etiquetas a los pods (deben coincidir con las de selector.matchLabels)
         app: humhub #etiqueta del pod
-    spec:
-      #para que coja la credencial (el token)
+    spec: # especificación de pod
       imagePullSecrets: 
       - name: regcred 
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
+      affinity: 
+        podAntiAffinity: # asignación de pods a nodos diferentes
+          requiredDuringSchedulingIgnoredDuringExecution: 
+          - labelSelector: # Selecciona pods con la etiqueta app=humhub
+              matchExpressions: 
+              - key: app 
+                operator: In # busca pods con la etiqueta app igual a humhub
                 values:
                 - humhub
-            topologyKey: "kubernetes.io/hostname"
-      containers:
-      - name: humhub
-        image: mriedmann/humhub:latest
-        imagePullPolicy: IfNotPresent
-        ports:
+            topologyKey: "kubernetes.io/hostname" # asignación basada en el hostname de cada nodo
+      containers: # especificación de contenedores dentro del pod
+      - name: humhub #nombre del contenedor
+        image: mriedmann/humhub:latest #imagen del contenedor
+        imagePullPolicy: IfNotPresent # política de extracción de imagen 
+        ports: 
         - containerPort: 80
-        resources:
+        resources: 
           requests:
-            memory: "256Mi"
-            cpu: "100m"
+            memory: "256Mi" 
+            cpu: "100m" 
           limits:
             memory: "1Gi"
             cpu: "500m"
-        livenessProbe: # Comprueba si el contenedor está vivo
+        livenessProbe: # Comprueba si el contenedor está vivo; si no lo está, Kubernetes lo reinicia
           httpGet:
             path: /
             port: 80
           initialDelaySeconds: 30 # espera 30 segundos antes de la primera comprobación
           periodSeconds: 10 # comprueba cada 10 segundos
-        readinessProbe: # Comprueba si el contenedor está listo para recibir tráfico
+        readinessProbe: # Comprueba si el contenedor está listo para recibir tráfico; si no lo está, no recibe tráfico
           httpGet:
-            path: /
+            path: / 
             port: 80
           initialDelaySeconds: 5
           periodSeconds: 5
         env:
         # ---------------------------------------------------------
-        # ZONA DE CONEXIÓN CON ROL 1 (MYSQL)
+        # ZONA DE CONEXIÓN CON MYSQL
         # ---------------------------------------------------------
         
         # HOST DE LA BASE DE DATOS
         # En base/mysql/service.yaml, nos fijamos en metadata: name
-        - name: HUMHUB_DB_HOST
-          value: "mysql-service"
+        - name: HUMHUB_DB_HOST 
+          value: "mysql-service" 
 
         # NOMBRE DE LA BASE DE DATOS
         - name: HUMHUB_DB_NAME
           valueFrom:
             secretKeyRef:
-              name: humhub-mysql-secret
-              key: MYSQL_DATABASE
+              name: humhub-mysql-secret # En base/mysql/secret.yaml, nos fijamos en metadata: name
+              key: MYSQL_DATABASE       # En base/mysql/secret.yaml, nos fijamos en key: MYSQL_DATABASE
 
         # USUARIO DE LA BASE DE DATOS
         - name: HUMHUB_DB_USER
           valueFrom:
             secretKeyRef:
-              name: humhub-mysql-secret
-              key: MYSQL_USER
+              name: humhub-mysql-secret # En base/mysql/secret.yaml, nos fijamos en metadata: name
+              key: MYSQL_USER           # En base/mysql/secret.yaml, nos fijamos en key: MYSQL_USER
 
         # CONTRASEÑA DE LA BASE DE DATOS
         - name: HUMHUB_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: humhub-mysql-secret
-              key: MYSQL_PASSWORD
+              name: humhub-mysql-secret # En base/mysql/secret.yaml, nos fijamos en metadata: name
+              key: MYSQL_PASSWORD       # En base/mysql/secret.yaml, nos fijamos en key: MYSQL_PASSWORD
 
         # ---------------------------------------------------------
-        - name: HUMHUB_TRUSTED_HOSTS
-          value: "*"
-        - name: HUMHUB_DEBUG
-          value: "false"
-        - name: HUMHUB_AUTO_INSTALL
-          value: "false"
+        - name: HUMHUB_TRUSTED_HOSTS 
+          value: "*" 
+        - name: HUMHUB_DEBUG 
+          value: "false" # Deshabilita el modo de depuración
+        - name: HUMHUB_AUTO_INSTALL 
+          value: "false" # Deshabilita la instalación automática
 
         # ---------------------------------------------------------
         # El volumen para las fotos, archivos adjuntos...
         # ---------------------------------------------------------
         volumeMounts:
         - name: humhub-data 
-          mountPath: /var/www/html/uploads #aqui es donde se van a guardar las fotos y demás
+          mountPath: /var/www/html/uploads #aqui es donde se van a guardar las fotos y demás (contenido generado por el usuario)
         - name: humhub-modules
-          mountPath: /var/www/html/protected/modules
+          mountPath: /var/www/html/protected/modules # módulos de HumHub
         - name: humhub-config
-          mountPath: /var/www/html/protected/config
+          mountPath: /var/www/html/protected/config # configuración de HumHub
 
       # Definición de los discos 
-      volumes:
-      - name: humhub-data
-        persistentVolumeClaim:
+      volumes: 
+      - name: humhub-data # disco para almacenar datos persistentes
+        persistentVolumeClaim: 
           claimName: humhub-pv-claim #las fotos y archivos adjuntos se van a guardar en este disco
-      - name: humhub-modules
+      - name: humhub-modules # disco temporal para módulos de HumHub
         emptyDir: {} #esto se borra al reiniciar
-      - name: humhub-config
+      - name: humhub-config # disco temporal para configuración de HumHub
         emptyDir: {} #esto se borra al reiniciar tb
