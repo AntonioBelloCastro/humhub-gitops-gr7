@@ -6,19 +6,19 @@ metadata:
   labels:
     app: mysql #Etiqueta para que Kubernetes pueda encontrar y gestionar a los pods de mysql
   annotations:
-    argocd.argoproj.io/compare-options: IgnoreDetailedDiff=true #ArgoCD que ignore las diferencias menores
-    argocd.argoproj.io/sync-options: PreserveResourcesOnDelete=true #Evitar la pérdida accidental de la base de datos si el manifiesto se elimina de YAML se elimina de Git
+    argocd.argoproj.io/compare-options: IgnoreDetailedDiff=true #Se indica a ArgoCD que ignore las diferencias menores
+    argocd.argoproj.io/sync-options: PreserveResourcesOnDelete=true #Evita la pérdida accidental de la base de datos si el manifiesto se elimina de YAML se elimina de Git
 spec:
   replicas: 1 #Sólo una réplica para mantener la integridad de los datos
   strategy:
-    type: Recreate
+    type: Recreate #Evitamos que se levanten nuevos pods sin eliminar los antiguos
   selector: #A continuación se definen qué Pods pertenecerán a este Deployment
     matchLabels: #A continuacion se define qué etiquetas deben tener los Pods para ser seleccionados
       app: mysql 
   template: #Descripción de cómo debe ser el pod que se crea
     metadata: # Sección de información de identificación para el Pod
       labels: 
-        app: mysql #etiqueta que usa el service para conectarse al pod
+        app: mysql #Etiqueta que usa el service para conectarse al pod
     spec: #Sección de detalles técnicos de cómo debe ejecutarse el Pod
       containers: #Contenedores que se ejecutarán dentro del Pod
       - name: mysql
@@ -27,29 +27,28 @@ spec:
         - containerPort: 3306 # Puerto estándar de MySql
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "100m"
+            memory: "256Mi" #Solo se inicia el pod si el nodo tiene al menos 256 MiB de RAM disponible
+            cpu: "100m" #Se garantiza el 10% de un núcleo de CPU como mínimo
           limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
+            memory: "512Mi" # Se detiene el pod si intenta usar más de 512 MiB, para proteger al resto de pods
+            cpu: "500m" #Limitamos al 50% de un núcleo de CPU para asegurar el rendimiento de otros servicios
+        livenessProbe: #Prueba que en caso de fallar provoca que Kubernetes elimine el contenedor y lo vuelva a crear
           exec:
-            command:
-            - sh
+            command: # sh -c "mysql -u root -p${MYSQL_ROOT_PASSWORD} -e 'SELECT 1'" se intenta iniciar sesión como root y se pide una consulta
+            - sh 
             - -c
             - "mysql -u root -p${MYSQL_ROOT_PASSWORD} -e 'SELECT 1'"
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
+          initialDelaySeconds: 30 #Tiempo de retraso
+          periodSeconds: 10 #La prueba se realiza cada 10 segundos
+        readinessProbe: #Prueba que en caso de fallar provoca que el pod sea clasificado como no listo, haciendo que Traefik deje de enviarle tráfico
           exec:
-            command:
+            command: # sh -c "mysql -u root -p${MYSQL_ROOT_PASSWORD} -e 'SELECT 1'" se intenta iniciar sesión como root y se pide una consulta
             - sh
             - -c
             - "mysql -u root -p${MYSQL_ROOT_PASSWORD} -e 'SELECT 1'"
           initialDelaySeconds: 5
           periodSeconds: 5
-        # 1. INYECCIÓN DE CREDENCIALES DESDE EL SECRET
-        env:
+        env: #Credenciales para la base de datos
           - name: MYSQL_ROOT_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -71,13 +70,12 @@ spec:
                 name: humhub-mysql-secret 
                 key: MYSQL_PASSWORD
 
-        # 2. MONTAJE DEL PVC EN LA RUTA DE DATOS
-        volumeMounts:
-        - name: mysql-persistent-storage # Referencia al nombre interno para el volumen que definiremos en la sección volumes
-          mountPath: /var/lib/mysql # Ruta de datos de MySQL
+        volumeMounts: #Montaje del PVC
+        - name: mysql-persistent-storage #Referencia al nombre interno para el volumen que definiremos en la sección volumes
+          mountPath: /var/lib/mysql #Ruta de datos de MySQL
 
-      # 3. DEFINICIÓN DEL PVC PARA EL POD
-      volumes:
-      - name: mysql-persistent-storage #nombre lógico para la fuente de datos
-        persistentVolumeClaim: # el tipo de fuente es un PersistentVolumeClaim
-          claimName: mysql-pv-claim #referencia al manifiesto PVC
+      
+      volumes: #Definición del PVC para el pod
+      - name: mysql-persistent-storage #Nombre lógico para la fuente de datos
+        persistentVolumeClaim: #Tipo de fuente es un PersistentVolumeClaim
+          claimName: mysql-pv-claim #Referencia al manifiesto PVC
