@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1 #es la API que extiende a Kubernetes estándar (cuando hago la instalación de ArgoCD)
+kind: Application #tipo Application es un tipo nuevo de Argocd de esa API
+metadata:
+  name: humhub-gitops  # la tarea la llamamos así
+  namespace: argocd    
+spec:
+  project: default #para que use permisos globales sin restricciones
+  source:
+    repoURL: https://github.com/AntonioBelloCastro/humhub-gitops-gr7.git
+    targetRevision: modificaciones  # la rama de GITHUB
+    path: base 
+    directory:
+      recurse: true #para que mire los subdirectorios
+  
+  #Aquí es donde tengo que desplegar todo
+  destination:
+    server: https://kubernetes.default.svc  #apunta al cluster de kubernetes interno que tenemos montado
+    namespace: humhub     # En el namespace que creamos
+
+  #aquí se le dice que tiene que hacer, cómo tiene que actuar
+  syncPolicy:
+    automated:
+      prune: true       # si se borra algo en git, que lo borre tb argocd
+      selfHeal: true    # las correcciones que se hagan a mano que las restablezca a lo que dice el git
+    syncOptions:
+      - CreateNamespace=true # Si no existe el namespace humhub, lo creas
