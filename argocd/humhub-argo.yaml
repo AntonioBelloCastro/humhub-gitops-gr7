@@ -1,16 +1,14 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
+apiVersion: argoproj.io/v1alpha1 #es la API que extiende a Kubernetes estándar (cuando hago la instalación de ArgoCD)
+kind: Application #tipo Application es un tipo nuevo de Argocd de esa API
 metadata:
   name: humhub-gitops  # la tarea la llamamos así
   namespace: argocd    
 spec:
-  project: default
-  
-  #En source le pasamos el lugar donde se encuentran los archivos 
+  project: default #para que use permisos globales sin restricciones
   source:
     repoURL: https://github.com/AntonioBelloCastro/humhub-gitops-gr7.git
-    targetRevision: modificaciones  # que coja los cambios del main
-    path: base            # va a leer la carpeta base (que es donde tenemos toda la estructura)
+    targetRevision: modificaciones  # la rama de GITHUB
+    path: base 
     directory:
       recurse: true #para que mire los subdirectorios
   

@@ -5,8 +5,8 @@ metadata:
   namespace: argocd
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
-    ingress.kubernetes.io/ssl-redirect: "false" #que pueda entrar por el puerto 80
-    traefik.ingress.kubernetes.io/service.serversscheme: https #tiene que "hablarle" https a argo
+    #ingress.kubernetes.io/ssl-redirect: "false" #que pueda entrar por el puerto 80
+    #traefik.ingress.kubernetes.io/service.serversscheme: https #tiene que "hablarle" https a argo
 spec:
   rules:
   - host: argocd.grupo7.com
@@ -18,4 +18,4 @@ spec:
           service:
             name: argocd-server
             port:
-              number: 443 #https
+              number: 80 
