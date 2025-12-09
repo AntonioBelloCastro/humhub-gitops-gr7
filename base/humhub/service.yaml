@@ -1,16 +1,16 @@
 apiVersion: v1
-kind: Service
+kind: Service # tipo de recurso: Servicio
 metadata:
-  name: humhub-service 
-  namespace: humhub
+  name: humhub-service # nombre del Servicio
+  namespace: humhub # namespace donde se va a crear el Servicio
   labels:
-    app: humhub
+    app: humhub # etiqueta del Servicio
 spec:
-  type: ClusterIP
+  type: ClusterIP # tipo de Servicio: ClusterIP (accesible solo dentro del clúster)
   ports:
-    - port: 80
-      targetPort: 80
-      protocol: TCP
-      name: http
+    - port: 80 # puerto del Servicio
+      targetPort: 80 # puerto del contenedor al que se dirige el tráfico
+      protocol: TCP # protocolo utilizado
+      name: http # nombre del puerto
   selector:
-    app: humhub # Coincide con el label del Deployment
+    app: humhub # selecciona los pods con la etiqueta app=humhub (definida en el template del Deployment)
