@@ -9,7 +9,7 @@ metadata: # contiene información para identificar el deployment
     argocd.argoproj.io/compare-options: IgnoreDetailedDiff=true #Se indica a ArgoCD que ignore las diferencias menores
     argocd.argoproj.io/sync-options: Prune=false #Evita la eliminación de la base de datos si el manifiesto se elimina de YAML se elimina de Git
 spec: # describe el estado deseado del deployment
-  replicas: 3 # número de instancias de pod
+  replicas: 1 # número de instancias de pod
   strategy:
     type: Recreate # estrategia de actualización (Recreate: elimina los pods antiguos antes de crear los nuevos)
   selector: # selector para identificar los pods gestionados por este deployment
@@ -22,16 +22,16 @@ spec: # describe el estado deseado del deployment
     spec: # especificación de pod
       imagePullSecrets: 
       - name: regcred 
-      affinity: 
-        podAntiAffinity: # asignación de pods a nodos diferentes
-          requiredDuringSchedulingIgnoredDuringExecution: 
-          - labelSelector: # Selecciona pods con la etiqueta app=humhub
-              matchExpressions: 
-              - key: app 
-                operator: In # busca pods con la etiqueta app igual a humhub
-                values:
-                - humhub
-            topologyKey: "kubernetes.io/hostname" # asignación basada en el hostname de cada nodo
+      #affinity: 
+      #  podAntiAffinity: # asignación de pods a nodos diferentes
+       #   requiredDuringSchedulingIgnoredDuringExecution: 
+        #  - labelSelector: # Selecciona pods con la etiqueta app=humhub
+         #     matchExpressions: 
+          #    - key: app 
+           #     operator: In # busca pods con la etiqueta app igual a humhub
+            #    values:
+             #   - humhub
+            #topologyKey: "kubernetes.io/hostname" # asignación basada en el hostname de cada nodo
       containers: # especificación de contenedores dentro del pod
       - name: humhub #nombre del contenedor
         image: mriedmann/humhub:latest #imagen del contenedor
