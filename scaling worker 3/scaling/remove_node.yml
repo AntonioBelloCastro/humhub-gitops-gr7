@@ -1,8 +1,9 @@
 ---
-- name: Sacar Nodo del Cluster (Soft Remove)
+- name: Operación de desescalado (quitar nodo y limpiar)
   hosts: k3s_new_worker
   become: yes
   tasks:
+    # --- PARTE 1: Quitar el nodo desde el master ---
     - name: Cordon Node (marcar como no programable)
       command: >
         /usr/local/bin/kubectl cordon {{ inventory_hostname }}
@@ -24,3 +25,13 @@
         /usr/local/bin/kubectl delete node {{ inventory_hostname }}
       delegate_to: "{{ groups['k3s_master'][0] }}"
       ignore_errors: yes
+
+    # --- PARTE 2: Limpiar el worker 3 ---
+    - name: Comprobar si existe el desinstalador de K3s
+      stat:
+        path: /usr/local/bin/k3s-agent-uninstall.sh
+      register: k3s_uninstall_script
+
+    - name: Desinstalar K3s Agent del nodo
+      command: /usr/local/bin/k3s-agent-uninstall.sh
+      when: k3s_uninstall_script.stat.exists
