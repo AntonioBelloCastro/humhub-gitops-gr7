@@ -12,10 +12,9 @@
     - name: Drain Node (vaciar los pods)
       command: >
         /usr/local/bin/kubectl drain {{ inventory_hostname }}
-        --ignore-daemonsets     # ignora pods especiales del sistema que no
-                                # puede mover
-        --delete-emptydir-data  # borra almacenamiento temporal
-        --force                 # fuerza el borrado de pods huérfanos
+        --ignore-daemonsets
+        --delete-emptydir-data
+        --force
         --timeout=60s
       delegate_to: "{{ groups['k3s_master'][0] }}"
       ignore_errors: yes
