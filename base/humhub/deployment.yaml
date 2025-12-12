@@ -45,12 +45,12 @@ spec: # describe el estado deseado del deployment
           limits:
             memory: "1Gi"
             cpu: "500m"
-        # livenessProbe: # Comprueba si el contenedor está vivo; si no lo está, Kubernetes lo reinicia
-        #   httpGet:
-        #     path: /
-        #     port: 80
-        #   initialDelaySeconds: 30 # espera 30 segundos antes de la primera comprobación
-        #   periodSeconds: 10 # comprueba cada 10 segundos
+        livenessProbe: # Comprueba si el contenedor está vivo; si no lo está, Kubernetes lo reinicia
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30 # espera 30 segundos antes de la primera comprobación
+          periodSeconds: 10 #  comprueba cada 10 segundos
         readinessProbe: # Comprueba si el contenedor está listo para recibir tráfico; si no lo está, no recibe tráfico
           httpGet:
             path: / 
