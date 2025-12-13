@@ -58,9 +58,6 @@ spec: # describe el estado deseado del deployment
           initialDelaySeconds: 5
           periodSeconds: 5
         env:
-        # ---------------------------------------------------------
-        # ZONA DE CONEXIÓN CON MYSQL
-        # ---------------------------------------------------------
         
         # HOST DE LA BASE DE DATOS
         # En base/mysql/service.yaml, nos fijamos en metadata: name
@@ -88,7 +85,6 @@ spec: # describe el estado deseado del deployment
               name: humhub-mysql-secret # En base/mysql/secret.yaml, nos fijamos en metadata: name
               key: MYSQL_PASSWORD       # En base/mysql/secret.yaml, nos fijamos en key: MYSQL_PASSWORD
 
-        # ---------------------------------------------------------
         - name: HUMHUB_TRUSTED_HOSTS 
           value: "*" 
         - name: HUMHUB_DEBUG 
@@ -96,9 +92,6 @@ spec: # describe el estado deseado del deployment
         - name: HUMHUB_AUTO_INSTALL 
           value: "false" # Deshabilita la instalación automática
 
-        # ---------------------------------------------------------
-        # El volumen para las fotos, archivos adjuntos...
-        # ---------------------------------------------------------
         volumeMounts:
         - name: humhub-data 
           mountPath: /var/www/html/uploads #aqui es donde se van a guardar las fotos y demás (contenido generado por el usuario)
