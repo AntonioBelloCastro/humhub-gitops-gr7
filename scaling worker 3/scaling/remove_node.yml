@@ -3,7 +3,7 @@
   hosts: k3s_new_worker
   become: yes
   tasks:
-    # 1. Quitar el nodo desde el master
+    # 1. Quitar el nodo desde el máster
     - name: Cordon node (marcar como no programable)
       command: >
         /usr/local/bin/kubectl cordon {{ inventory_hostname }}
@@ -34,4 +34,5 @@
 
     - name: Desinstalar K3s Agent del nodo
       command: /usr/local/bin/k3s-agent-uninstall.sh
+
       when: k3s_uninstall_script.stat.exists
