@@ -3,14 +3,14 @@
   hosts: k3s_new_worker
   become: yes
   tasks:
-    # --- PARTE 1: Quitar el nodo desde el master ---
-    - name: Cordon Node (marcar como no programable)
+    # 1. Quitar el nodo desde el master
+    - name: Cordon node (marcar como no programable)
       command: >
         /usr/local/bin/kubectl cordon {{ inventory_hostname }}
       delegate_to: "{{ groups['k3s_master'][0] }}"
       ignore_errors: yes 
 
-    - name: Drain Node (vaciar los pods)
+    - name: Drain node (vaciar los pods)
       command: >
         /usr/local/bin/kubectl drain {{ inventory_hostname }}
         --ignore-daemonsets
@@ -20,13 +20,13 @@
       delegate_to: "{{ groups['k3s_master'][0] }}"
       ignore_errors: yes
 
-    - name: Delete Node (eliminar del cluster)
+    - name: Delete node (eliminar del clúster)
       command: >
         /usr/local/bin/kubectl delete node {{ inventory_hostname }}
       delegate_to: "{{ groups['k3s_master'][0] }}"
       ignore_errors: yes
 
-    # --- PARTE 2: Limpiar el worker 3 ---
+    # 2. Limpiar el worker 3
     - name: Comprobar si existe el desinstalador de K3s
       stat:
         path: /usr/local/bin/k3s-agent-uninstall.sh

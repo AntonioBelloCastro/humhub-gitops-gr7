@@ -1,5 +1,5 @@
 ---
-# 1. PREPARACIÓN DEL NODO
+# 1. Preparación del nodo
 - name: Actualizar caché apt
   apt:
     update_cache: yes
@@ -15,8 +15,8 @@
     swapoff -a
     sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
-# 2. OBTENER TOKEN (Delegado al Master)
-- name: Leer Token del Master
+# 2. Obtener token (delegado al master)
+- name: Leer token del master
   slurp:
     src: /var/lib/rancher/k3s/server/node-token
   register: node_token_b64
@@ -24,12 +24,12 @@
   run_once: true
   become: yes
 
-- name: Decodificar Token
+- name: Decodificar token
   set_fact:
     k3s_token_decoded: "{{ node_token_b64['content'] | b64decode | trim }}"
 
-# 3. UNIR AL CLUSTER
-- name: Instalar K3s Agent y Unir
+# 3. Unir al clúster
+- name: Instalar K3s agent y unir
   shell: >
     curl -sfL {{ k3s_installer_url }} | 
     K3S_URL=https://{{ k3s_master_ip }}:6443 
