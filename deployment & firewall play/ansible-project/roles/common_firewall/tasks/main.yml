@@ -10,17 +10,17 @@
   ufw:
     state: reset
 
-- name: Denegar entrante por defecto
+- name: Denegar tráfico entrante por defecto
   ufw:
     default: deny
     direction: incoming
 
-- name: Permitir saliente por defecto
+- name: Permitir tráfico saliente por defecto
   ufw:
     default: allow
     direction: outgoing
 
-- name: Permitir SSH (General)
+- name: Permitir SSH (general)
   ufw:
     rule: allow
     port: "{{ firewall_ssh_port }}"
@@ -31,8 +31,8 @@
     rule: allow
     from: "{{ cluster_subnet }}"
 
-# Reglas EXCLUSIVAS del Master
-- name: Permitir puertos públicos en Master (API/Web)
+# Regla sólo para el máster
+- name: Permitir puertos públicos en máster (API/web)
   ufw:
     rule: allow
     port: "{{ item }}"
@@ -40,6 +40,6 @@
   loop: "{{ firewall_allowed_tcp_ports_master }}"
   when: inventory_hostname in groups['k3s_master']
 
-- name: Activar Firewall
+- name: Activar firewall
   ufw:
     state: enabled

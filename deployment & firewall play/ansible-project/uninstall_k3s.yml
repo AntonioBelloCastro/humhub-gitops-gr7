@@ -1,14 +1,14 @@
 ---
-# 1. LIMPIEZA DE WORKERS
-- name: Desinstalar K3s de los Workers
+# 1. Limpieza de workers
+- name: Desinstalar K3s de los workers
   hosts: k3s_workers
   become: yes
   tasks:
-    - name: Ejecutar desinstalación del Agente (si existe)
+    - name: Ejecutar desinstalación del agente K3s (si existe)
       shell: /usr/local/bin/k3s-agent-uninstall.sh
       args:
         removes: /usr/local/bin/k3s-agent-uninstall.sh # mira si el archivo existe, en cuyo caso ejecuta
-      ignore_errors: yes  # Continuar aunque falle la ejecución
+      ignore_errors: yes  # continuar aunque falle la ejecución
 
     - name: Eliminar directorios residuales (limpieza profunda)
       file:
@@ -20,12 +20,12 @@
         - /usr/local/bin/k3s
         - /usr/local/bin/k3s-agent
 
-# 2. LIMPIEZA DEL MASTER
-- name: Desinstalar K3s del Master
+# 2. Limpieza del máster
+- name: Desinstalar K3s del máster
   hosts: k3s_master
   become: yes
   tasks:
-    - name: Ejecutar desinstalación del Master (si existe)
+    - name: Ejecutar desinstalación del máster (si existe)
       shell: /usr/local/bin/k3s-uninstall.sh
       args:
         removes: /usr/local/bin/k3s-uninstall.sh
@@ -39,4 +39,4 @@
         - /etc/rancher
         - /var/lib/rancher
         - /usr/local/bin/k3s
-        - /root/.kube  # Borramos la config de kubectl del usuario root
+        - /root/.kube  # borramos la configuración de kubectl del usuario root
