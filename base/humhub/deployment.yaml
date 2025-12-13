@@ -7,7 +7,7 @@ metadata: # contiene información para identificar el deployment
     app: humhub #etiqueta del Deployment
   annotations:
     argocd.argoproj.io/compare-options: IgnoreDetailedDiff=true #Se indica a ArgoCD que ignore las diferencias menores
-    argocd.argoproj.io/sync-options: Prune=false #Evita la eliminación de la base de datos si el manifiesto se elimina de YAML se elimina de Git
+    argocd.argoproj.io/sync-options: Prune=false #Evita la eliminación de HumHub si el manifiesto YAML se elimina de Git
 spec: # describe el estado deseado del deployment
   replicas: 3 # número de instancias de pod
   strategy:
